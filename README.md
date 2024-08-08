@@ -14,6 +14,14 @@ Write your route settings in JSON. Here is an example [config.json](./config.jso
   - `body`: Response value. If not set, the response will be empty.
   - `status code`: HTTP status code for the response. If not set, the status code is 200.
   - `headers`: Set extra response headers. You can also leave it empty.
+- `POST`: Method for handling `POST` requests
+  - `path`: Route path, this setting needs a value.
+  - `body`: Response value. If not set, the response will be empty.
+  - `status code`: HTTP status code for the response. If not set, the status code is 200.
+  - `headers`: Set extra response headers. You can also leave it empty.
+  - `override`: handle override settings by verifying the post body with conditions , will check each condition until match one or using default
+    - `verify`: condition to check the request body
+    - others: override settings
 
 ```json
 {
@@ -34,6 +42,28 @@ Write your route settings in JSON. Here is an example [config.json](./config.jso
       "body": {
         "message": "about"
       }
+    }
+  ],
+  "POST": [
+    {
+      "path": "/",
+      "body": {
+        "message": "Hello World"
+      },
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "overrides": [
+        {
+          "verify": {
+            "input": "test"
+          },
+          "body": {
+            "message": "Hello Test"
+          },
+          "status": 404
+        }
+      ]
     }
   ]
 }

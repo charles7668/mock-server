@@ -18,9 +18,11 @@ func startServer(settings map[string]interface{}) {
 	serverOptions.Parse(settings)
 	parsers := []models.Parser{
 		models.GetRoutesParser{},
+		models.PostRoutesParser{},
 	}
 	for _, parser := range parsers {
-		routeConfigs = append(routeConfigs, parser.ParseRoutes(settings)...)
+		temp := parser.ParseRoutes(settings)
+		routeConfigs = append(routeConfigs, temp...)
 	}
 	for _, routeConfig := range routeConfigs {
 		println("routed : ", routeConfig.Method, routeConfig.Path)
@@ -28,23 +30,24 @@ func startServer(settings map[string]interface{}) {
 
 	router := chi.NewRouter()
 	for _, routeConfig := range routeConfigs {
-		handler := func(writer http.ResponseWriter, request *http.Request) {
-			for key, value := range routeConfig.Headers {
-				writer.Header().Set(key, value)
-			}
-			writer.WriteHeader(routeConfig.StatusCode)
-
-			_, err := writer.Write([]byte(routeConfig.Body))
-			if err != nil {
-				return
-			}
+		var handler http.HandlerFunc
+		switch routeConfig.Method {
+		case "GET":
+			handler = getMethodHandler(routeConfig)
+			break
+		case "POST":
+			handler = postMethodHandler(routeConfig)
+			break
+		default:
+			log.Fatal("Unknown method:", routeConfig.Method)
 		}
 		router.Method(
 			routeConfig.Method,
 			routeConfig.Path,
-			http.HandlerFunc(handler),
+			handler,
 		)
 	}
+	log.Println("Starting server on port", serverOptions.Port)
 	err := http.ListenAndServe(":"+strconv.Itoa(serverOptions.Port), router)
 	if err != nil {
 		log.Fatal(err)

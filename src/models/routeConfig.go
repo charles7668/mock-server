@@ -6,4 +6,5 @@ type RouteConfig struct {
 	Body       string
 	StatusCode int
 	Headers    map[string]string
+	Overrides  []map[string]interface{}
 }

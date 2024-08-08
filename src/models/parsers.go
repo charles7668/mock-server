@@ -13,14 +13,18 @@ type GetRoutesParser struct {
 	Parser
 }
 
-func (p GetRoutesParser) ParseRoutes(settings map[string]interface{}) []RouteConfig {
+type PostRoutesParser struct {
+	Parser
+}
+
+func commonParse(settings map[string]interface{}, method string) []RouteConfig {
 	routeConfigs := make([]RouteConfig, 0)
-	if setting, ok := settings["GET"]; ok {
+	if setting, ok := settings[method]; ok {
 		getRouteSettings := setting.([]interface{})
 		for _, getRouteSetting := range getRouteSettings {
 			route := getRouteSetting.(map[string]interface{})
 			routeConfig := RouteConfig{
-				Method: "GET",
+				Method: method,
 			}
 			if path, ok := route["path"]; ok {
 				routeConfig.Path = path.(string)
@@ -67,8 +71,27 @@ func (p GetRoutesParser) ParseRoutes(settings map[string]interface{}) []RouteCon
 				routeConfig.Headers = nil
 			}
 
+			// parse overrides
+			if overrides, ok := route["overrides"]; ok {
+				temp := overrides.([]interface{})
+				routeConfig.Overrides = make([]map[string]interface{}, 0)
+				for _, override := range temp {
+					routeConfig.Overrides = append(routeConfig.Overrides, override.(map[string]interface{}))
+				}
+			} else {
+				routeConfig.Overrides = nil
+			}
+
 			routeConfigs = append(routeConfigs, routeConfig)
 		}
 	}
 	return routeConfigs
+}
+
+func (p GetRoutesParser) ParseRoutes(settings map[string]interface{}) []RouteConfig {
+	return commonParse(settings, "GET")
+}
+
+func (p PostRoutesParser) ParseRoutes(settings map[string]interface{}) []RouteConfig {
+	return commonParse(settings, "POST")
 }

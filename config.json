@@ -17,5 +17,27 @@
         "message": "about"
       }
     }
+  ],
+  "POST": [
+    {
+      "path": "/",
+      "body": {
+        "message": "Hello World"
+      },
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "overrides": [
+        {
+          "verify": {
+            "input": "test"
+          },
+          "body": {
+            "message": "Hello Test"
+          },
+          "status": 404
+        }
+      ]
+    }
   ]
 }
