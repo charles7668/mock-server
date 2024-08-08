@@ -111,6 +111,13 @@ func postMethodHandler(routeConfig models.RouteConfig) http.HandlerFunc {
 				} else {
 					body = ""
 				}
+			case []interface{}:
+				content, err := json.Marshal(v)
+				if err == nil {
+					body = string(content)
+				} else {
+					body = ""
+				}
 			default:
 				body = ""
 			}

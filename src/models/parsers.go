@@ -45,6 +45,14 @@ func commonParse(settings map[string]interface{}, method string) []RouteConfig {
 						fmt.Println("Error marshaling JSON:", err)
 						routeConfig.Body = ""
 					}
+				case []interface{}:
+					content, err := json.Marshal(v)
+					if err == nil {
+						routeConfig.Body = string(content)
+					} else {
+						fmt.Println("Error marshaling JSON Array:", err)
+						routeConfig.Body = ""
+					}
 				default:
 					routeConfig.Body = ""
 					fmt.Println("Unknown type:", v)

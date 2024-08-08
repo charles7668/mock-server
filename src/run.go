@@ -2,6 +2,7 @@ package src
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"log"
 	"mock-server/src/models"
 	"net/http"
@@ -29,6 +30,16 @@ func startServer(settings map[string]interface{}) {
 	}
 
 	router := chi.NewRouter()
+
+	router.Use(cors.Handler(cors.Options{
+		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
+
 	for _, routeConfig := range routeConfigs {
 		var handler http.HandlerFunc
 		switch routeConfig.Method {
